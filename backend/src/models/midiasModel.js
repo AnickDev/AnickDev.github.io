@@ -30,7 +30,7 @@ export const midiaModel = conn.define(
     },
   },
   {
-    tableName: "midias",
+    tableName: "midia",
     timestamps: true,
   }
 );

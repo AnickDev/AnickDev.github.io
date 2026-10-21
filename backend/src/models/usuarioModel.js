@@ -91,7 +91,7 @@ export const usuarioModel = conn.define(
     },
   },
   {
-    tableName: "usuarios",
+    tableName: "usuario",
     timestamps: true,
   },
 );

@@ -61,7 +61,7 @@ export const reflexaoAnualModel = conn.define(
     },
   },
   {
-    tableName: "reflexoes_anuais",
+    tableName: "reflexao_anual",
     timestamps: true, 
   }
 );

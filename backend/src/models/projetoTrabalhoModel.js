@@ -55,7 +55,7 @@ export const projetoTrabalhoModel = conn.define(
     },
   },
   {
-    tableName: "projetos_trabalho",
+    tableName: "projeto_trabalho",
     timestamps: true,
   }
 );

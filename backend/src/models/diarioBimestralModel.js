@@ -69,7 +69,7 @@ export const diarioBimestralModel = conn.define(
     },
   },
   {
-    tableName: "diarios_bimestrais",
+    tableName: "diario_bimestral",
     timestamps: true, // 
   }
 );
