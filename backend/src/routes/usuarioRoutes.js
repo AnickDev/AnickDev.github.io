@@ -1,0 +1,1 @@
+import { cadastrarUsuario } from "../controllers/usuarioController.js";
