@@ -28,3 +28,12 @@ if (!nome_area.trim()) {
     return tratarErro(error, response)
   }
 };
+export const listarArea = async (request, response) =>{
+   try {
+     const areaConhecimento = await areaConhecimentoModel.findAll()
+
+    return response.status(200).json(areaConhecimento)
+   } catch (error) {
+    return tratarErro(error, response)
+   }
+}
