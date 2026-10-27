@@ -136,6 +136,29 @@ export const atualizarUsuario = async (request, response) => {
 
     response.status(200).json(usuario);
   } catch (error) {
-    return await tratarErro(error, response);
+    return tratarErro(error, response);
+  }
+};
+export const deletarUsuario = async (request, response) => {
+  try {
+    const id = Number(request.params.id);
+
+    if (!Number.isInteger(id) || id <= 0) {
+      return response.status(400).json({ message: "ID inválido!" });
+    }
+
+    const usuario = await usuarioModel.findByPk(id);
+
+    if (!usuario) {
+      return response.status(404).json({
+        message: "Usuário não encontrado!",
+      });
+    }
+
+    await usuario.destroy();
+
+    response.status(204).send();
+  } catch (error) {
+    return tratarErro(error, response);
   }
 };
