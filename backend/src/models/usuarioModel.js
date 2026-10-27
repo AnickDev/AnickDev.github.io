@@ -87,11 +87,20 @@ export const usuarioModel = conn.define(
     foto_perfil: {
       type: DataTypes.STRING,
       allowNull: true,
-      defaultValue: "https://gravatar.com",
+      defaultValue: "https://cdn-icons-png.flaticon.com/512/9706/9706583.png",
     },
   },
   {
     tableName: "usuario",
     timestamps: true,
+
+    defaultScope: {
+      attributes: { exclude: ["senha"] },
+    },
+    scopes: {
+      comSenha: {
+        attributes: {},
+      },
+    },
   },
 );

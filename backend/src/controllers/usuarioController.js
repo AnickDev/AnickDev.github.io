@@ -46,3 +46,12 @@ try {
 }
 
 }
+export const listarUsuario = async (request, response) =>{
+    try {
+        const usuarios = await usuarioModel.findAll()
+
+        response.status(200).json(usuarios)
+    } catch (error) {
+        return tratarErro(error, response)
+    }
+}
