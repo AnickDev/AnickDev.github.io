@@ -58,3 +58,42 @@ export const listarAreaPorID = async (request, response) =>{
       return tratarErro(error, response)
     }
 }
+export const atualizarArea = async (request, response) => {
+  try {
+    const id = Number(request.params.id);
+
+    if (!Number.isInteger(id) || id <= 0) {
+      return response.status(400).json({ message: "ID inválido!" });
+    }
+
+    const areaConhecimento = await areaConhecimentoModel.findByPk(id);
+
+    if (!areaConhecimento) {
+      return response.status(404).json({
+        message: "Área do conhecimento não encontrada!",
+      });
+    }
+
+    const { nome_area } = request.body;
+
+    if (nome_area !== undefined) {
+      if (typeof nome_area !== "string" || !nome_area.trim()) {
+        return response.status(400).json({
+          message: "Nome da área inválido!",
+        });
+      }
+
+      await areaConhecimento.update({
+        nome_area: nome_area.trim(),
+      });
+    }
+
+    return response.status(200).json({
+      message: "Área atualizada com sucesso!",
+      area: areaConhecimento,
+    });
+
+  } catch (error) {
+    return tratarErro(error, response);
+  }
+};
