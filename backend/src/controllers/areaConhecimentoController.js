@@ -37,3 +37,24 @@ export const listarArea = async (request, response) =>{
     return tratarErro(error, response)
    }
 }
+export const listarAreaPorID = async (request, response) =>{
+    try {
+      const id = Number(request.params.id);
+
+      if (!Number.isInteger(id) || id <= 0) {
+      return response.status(400).json({ message: "ID inválido!" });
+    }
+
+    const areaConhecimento = await areaConhecimentoModel.findByPk(id)
+
+    if (!areaConhecimento) {
+      return response.status(404).json({
+        message: "Área do conhecimento não encontrada!",
+      });
+    }
+    return response.status(200).json(areaConhecimento)
+
+    } catch (error) {
+      return tratarErro(error, response)
+    }
+}
