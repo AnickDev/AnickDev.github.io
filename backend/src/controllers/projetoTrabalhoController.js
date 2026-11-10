@@ -78,3 +78,12 @@ export const cadastrarProjeto = async (request, response) => {
     return tratarErro(error, response);
   }
 };
+export const listarProjeto = async (request, response) =>{
+    try {
+        const projeto = await projetoTrabalhoModel.findAll();
+
+        response.status(200).json(projeto);
+    } catch (error) {
+        return tratarErro(error, response)
+    }
+};
