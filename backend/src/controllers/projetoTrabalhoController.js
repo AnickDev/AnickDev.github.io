@@ -106,3 +106,88 @@ export const listarProjetoPorId = async (request, response) => {
     return tratarErro(error, response);
   }
 };
+export const atualizarProjeto = async (request, response) => {
+  try {
+    const id = Number(request.params.id);
+
+    if (!Number.isInteger(id) || id <= 0) {
+      return response.status(400).json({ message: "ID inválido!" });
+    }
+
+    const projeto = await projetoTrabalhoModel.findByPk(id);
+
+    if (!projeto) {
+      return response.status(404).json({
+        message: "Projeto não encontrado!",
+      });
+    }
+
+    const { id_usuario, id_area, bimestre, titulo, descricao_atividades } =
+      request.body;
+
+    const usuarioId = id_usuario !== undefined ? Number(id_usuario) : undefined;
+    const areaId = id_area !== undefined ? Number(id_area) : undefined;
+    const numeroBimestre =
+      bimestre !== undefined ? Number(bimestre) : undefined;
+
+    const projetoAtualizado = {
+      id_usuario: usuarioId,
+      id_area: areaId,
+      bimestre: numeroBimestre,
+      titulo: typeof titulo === "string" ? titulo.trim() : titulo,
+      descricao_atividades:
+        typeof descricao_atividades === "string"
+          ? descricao_atividades.trim()
+          : descricao_atividades,
+    };
+
+    Object.keys(projetoAtualizado).forEach((campo) => {
+      if (projetoAtualizado[campo] === undefined) {
+        delete projetoAtualizado[campo];
+      }
+    });
+
+    if (
+      usuarioId !== undefined &&
+      (!Number.isInteger(usuarioId) || usuarioId <= 0)
+    ) {
+      return response.status(400).json({ message: "ID do usuário inválido!" });
+    }
+
+    if (areaId !== undefined && (!Number.isInteger(areaId) || areaId <= 0)) {
+      return response.status(400).json({ message: "ID da área inválido!" });
+    }
+
+    if (
+      numeroBimestre !== undefined &&
+      (!Number.isInteger(numeroBimestre) ||
+        numeroBimestre < 1 ||
+        numeroBimestre > 4)
+    ) {
+      return response
+        .status(400)
+        .json({ message: "Informe um bimestre válido!" });
+    }
+
+    if (usuarioId !== undefined && !(await usuarioModel.findByPk(usuarioId))) {
+      return response.status(404).json({
+        message: "Usuário não encontrado!",
+      });
+    }
+
+    if (
+      areaId !== undefined &&
+      !(await areaConhecimentoModel.findByPk(areaId))
+    ) {
+      return response.status(404).json({
+        message: "Área de conhecimento não encontrada!",
+      });
+    }
+
+    await projeto.update(projetoAtualizado);
+
+    return response.status(200).json(projeto);
+  } catch (error) {
+    return tratarErro(error, response);
+  }
+};
