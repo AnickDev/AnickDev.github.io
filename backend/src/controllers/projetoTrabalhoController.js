@@ -191,3 +191,26 @@ export const atualizarProjeto = async (request, response) => {
     return tratarErro(error, response);
   }
 };
+export const deletarProjeto = async(request, response) =>{
+    try {
+        const id = Number(request.params.id)
+
+        if (!Number.isInteger(id) || id <= 0) {
+      return response.status(400).json({ message: "ID inválido!" });
+    }
+
+    const projeto = await projetoTrabalhoModel.findByPk(id)
+
+    if (!projeto) {
+      return response.status(404).json({
+        message: "Projeto não encontrado!",
+      });
+    }
+
+    await projeto.destroy();
+
+    return response.status(204).send()
+    } catch (error) {
+        return tratarErro(error, response)
+    }
+}
