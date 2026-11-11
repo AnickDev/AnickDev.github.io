@@ -78,12 +78,31 @@ export const cadastrarProjeto = async (request, response) => {
     return tratarErro(error, response);
   }
 };
-export const listarProjeto = async (request, response) =>{
-    try {
-        const projeto = await projetoTrabalhoModel.findAll();
+export const listarProjeto = async (request, response) => {
+  try {
+    const projeto = await projetoTrabalhoModel.findAll();
 
-        response.status(200).json(projeto);
-    } catch (error) {
-        return tratarErro(error, response)
+    response.status(200).json(projeto);
+  } catch (error) {
+    return tratarErro(error, response);
+  }
+};
+export const listarProjetoPorId = async (request, response) => {
+  try {
+    const id = Number(request.params.id);
+
+    if (!Number.isInteger(id) || id <= 0) {
+      return response.status(400).json({ message: "ID inválido!" });
     }
+
+    const projeto = await projetoTrabalhoModel.findByPk(id);
+    if (!projeto) {
+      return response.status(404).json({
+        message: "Projeto não encontrado!",
+      });
+    }
+    return response.status(200).json(projeto);
+  } catch (error) {
+    return tratarErro(error, response);
+  }
 };
