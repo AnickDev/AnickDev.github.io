@@ -4,6 +4,7 @@ import cors from "cors"
 import usuarioRoutes from "./routes/usuarioRoutes.js"
 import areaConhecimentoRoutes from "./routes/areaConhecimentoRoutes.js"
 import projetoTrabalhoRoutes from "./routes/projetoTrabalhoRoutes.js"
+import diarioBimestralRoutes from "./routes/diarioBimestralRoutes.js"
 
 const app = express()
 
@@ -20,6 +21,7 @@ app.use(express.json())
 app.use("/usuarios", usuarioRoutes)
 app.use("/area-conhecimento", areaConhecimentoRoutes)
 app.use("/projeto-trabalho", projetoTrabalhoRoutes)
+app.use("/diario-bimestral", diarioBimestralRoutes)
 
 app.use((request, response) => {
   response.status(404).json({ message: "Rota não encontrada" });
