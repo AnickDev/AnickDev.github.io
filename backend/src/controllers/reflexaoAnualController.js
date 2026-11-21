@@ -103,3 +103,79 @@ export const listarReflexoesPorId = async (request, response) => {
     return tratarErro(error, response);
   }
 };
+export const atualizarReflexao = async (request, response) => {
+  try {
+    const id = Number(request.params.id);
+
+    if (!Number.isInteger(id) || id <= 0) {
+      return response.status(400).json({ message: "ID inválido!" });
+    }
+
+    const reflexao = await reflexaoAnualModel.findByPk(id);
+
+    if (!reflexao) {
+      return response.status(404).json({
+        message: "Reflexão não encontrada!",
+      });
+    }
+
+    const {
+    id_usuario,
+    id_area,
+    aprendizado_academico,
+    melhorias_necessarias,
+    conexoes_interdisciplinares,
+    escola_pra_vida,
+  } = request.body;
+
+    const usuarioId = id_usuario !== undefined ? Number(id_usuario) : undefined;
+    const areaId = id_area !== undefined ? Number(id_area) : undefined;
+
+    const dadosAtualizados = {
+      id_usuario: usuarioId,
+      id_area: areaId,
+      aprendizado_academico: aprendizado_academico?.trim(),
+      melhorias_necessarias: melhorias_necessarias?.trim(),
+      conexoes_interdisciplinares: conexoes_interdisciplinares?.trim(),
+      escola_pra_vida: escola_pra_vida?.trim(),
+    };
+
+    Object.keys(dadosAtualizados).forEach((campo) => {
+      if (dadosAtualizados[campo] === undefined) {
+        delete dadosAtualizados[campo];
+      }
+    });
+
+    if (
+      usuarioId !== undefined &&
+      (!Number.isInteger(usuarioId) || usuarioId <= 0)
+    ) {
+      return response.status(400).json({ message: "ID do usuário inválido!" });
+    }
+
+    if (areaId !== undefined && (!Number.isInteger(areaId) || areaId <= 0)) {
+      return response.status(400).json({ message: "ID da área inválido!" });
+    }
+
+    if (usuarioId !== undefined && !(await usuarioModel.findByPk(usuarioId))) {
+      return response.status(404).json({
+        message: "Usuário não encontrado!",
+      });
+    }
+
+    if (
+      areaId !== undefined &&
+      !(await areaConhecimentoModel.findByPk(areaId))
+    ) {
+      return response.status(404).json({
+        message: "Área de conhecimento não encontrada!",
+      });
+    }
+
+    await reflexao.update(dadosAtualizados);
+
+    return response.status(200).json({ message: "Reflexão Atualizada com sucesso!", reflexao });
+  } catch (error) {
+    return tratarErro(error, response);
+  }
+};
