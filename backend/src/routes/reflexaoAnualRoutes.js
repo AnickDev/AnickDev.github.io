@@ -1,8 +1,9 @@
 import { Router } from "express";
-import { cadastrarReflexao } from "../controllers/reflexaoAnualController.js";
+import { cadastrarReflexao, listarReflexoes } from "../controllers/reflexaoAnualController.js";
 
 const router = Router()
 
 router.post("/", cadastrarReflexao)
+router.get("/", listarReflexoes)
 
 export default router;
