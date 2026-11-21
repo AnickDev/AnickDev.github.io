@@ -179,3 +179,26 @@ export const atualizarReflexao = async (request, response) => {
     return tratarErro(error, response);
   }
 };
+export const deletarReflexao = async (request, response) =>{
+      try {
+        const id = Number(request.params.id);
+    
+        if (!Number.isInteger(id) || id <= 0) {
+          return response.status(400).json({ message: "ID inválido!" });
+        }
+    
+        const reflexao = await reflexaoAnualModel.findByPk(id);
+    
+        if (!reflexao) {
+          return response.status(404).json({
+            message: "Reflexão não encontrada!",
+          });
+        }
+    
+        await reflexao.destroy();
+    
+        return response.status(204).send();
+      } catch (error) {
+        return tratarErro(error, response);
+    };
+}
