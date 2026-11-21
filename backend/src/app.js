@@ -6,6 +6,7 @@ import areaConhecimentoRoutes from "./routes/areaConhecimentoRoutes.js"
 import projetoTrabalhoRoutes from "./routes/projetoTrabalhoRoutes.js"
 import diarioBimestralRoutes from "./routes/diarioBimestralRoutes.js"
 import reflexaoAnualRoutes from "./routes/reflexaoAnualRoutes.js"
+import midiasRoutes from "./routes/MidiasRoutes.js"
 
 const app = express()
 
@@ -24,6 +25,7 @@ app.use("/area-conhecimento", areaConhecimentoRoutes)
 app.use("/projeto-trabalho", projetoTrabalhoRoutes)
 app.use("/diario-bimestral", diarioBimestralRoutes)
 app.use("/reflexao-anual", reflexaoAnualRoutes)
+app.use("/midias", midiasRoutes)
 
 app.use((request, response) => {
   response.status(404).json({ message: "Rota não encontrada" });
