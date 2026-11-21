@@ -1,8 +1,9 @@
 import { Router } from "express";
-import { cadastrarMidia } from "../controllers/MidiasController.js";
+import { cadastrarMidia, listarMidias } from "../controllers/MidiasController.js";
 
 const router = Router()
 
 router.post("/", cadastrarMidia)
+router.get("/", listarMidias)
 
 export default router

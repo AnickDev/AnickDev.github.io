@@ -35,3 +35,12 @@ export const cadastrarMidia = async (request, response) => {
     return tratarErro(error, response);
   }
 };
+export const listarMidias = async (request, response) =>{
+      try {
+        const midia = await midiaModel.findAll();
+    
+        return response.status(200).json(midia);
+      } catch (error) {
+        return tratarErro(error, response);
+      }
+}
