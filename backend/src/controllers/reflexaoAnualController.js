@@ -84,3 +84,22 @@ export const listarReflexoes = async (request, response) => {
     return tratarErro(error, response);
   }
 };
+export const listarReflexoesPorId = async (request, response) => {
+  try {
+    const id = Number(request.params.id);
+
+    if (!Number.isInteger(id) || id <= 0) {
+      return response.status(400).json({ message: "ID inválido!" });
+    }
+
+    const reflexao = await reflexaoAnualModel.findByPk(id);
+    if (!reflexao) {
+      return response.status(404).json({
+        message: "Reflexão não encontrada!",
+      });
+    }
+    return response.status(200).json(reflexao);
+  } catch (error) {
+    return tratarErro(error, response);
+  }
+};
