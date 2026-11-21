@@ -203,7 +203,30 @@ export const atualizarDiario = async (request, response) => {
 
     await diario.update(diarioAtualizado);
 
-    return response.status(200).json({message: "Diário Atualizado!", diario});
+    return response.status(200).json({ message: "Diário Atualizado!", diario });
+  } catch (error) {
+    return tratarErro(error, response);
+  }
+};
+export const deletarDiario = async (request, response) => {
+  try {
+    const id = Number(request.params.id);
+
+    if (!Number.isInteger(id) || id <= 0) {
+      return response.status(400).json({ message: "ID inválido!" });
+    }
+
+    const diario = await diarioBimestralModel.findByPk(id);
+
+    if (!diario) {
+      return response.status(404).json({
+        message: "Diário não encontrado!",
+      });
+    }
+
+    await diario.destroy();
+
+    return response.status(204).send();
   } catch (error) {
     return tratarErro(error, response);
   }
