@@ -89,3 +89,12 @@ export const cadastrarDiario = async (request, response) => {
     return tratarErro(error, response);
   }
 };
+export const listarDiarios = async (request, response) =>{
+    try {
+        const diario = await diarioBimestralModel.findAll();
+
+       return response.status(200).json(diario);
+    } catch (error) {
+        return tratarErro(error, response)
+    }
+}
