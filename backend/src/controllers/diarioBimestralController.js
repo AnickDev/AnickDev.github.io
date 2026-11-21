@@ -98,3 +98,22 @@ export const listarDiarios = async (request, response) =>{
         return tratarErro(error, response)
     }
 }
+export const listarDiarioPorId = async (request, response) =>{
+     try {
+        const id = Number(request.params.id);
+    
+        if (!Number.isInteger(id) || id <= 0) {
+          return response.status(400).json({ message: "ID inválido!" });
+        }
+    
+        const diario = await diarioBimestralModel.findByPk(id);
+        if (!diario) {
+          return response.status(404).json({
+            message: "Diário Bimestral não encontrado!",
+          });
+        }
+        return response.status(200).json(diario);
+      } catch (error) {
+        return tratarErro(error, response);
+      }
+}
