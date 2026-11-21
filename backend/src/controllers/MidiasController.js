@@ -44,3 +44,24 @@ export const listarMidias = async (request, response) =>{
         return tratarErro(error, response);
       }
 }
+export const listarMidiaPorId = async (request, response) =>{
+    try {
+        const id = Number(request.params.id)
+
+        if (!Number.isInteger(id) || id <= 0) {
+      return response.status(400).json({ message: "ID inválido!" });
+    }
+
+    const midia = await midiaModel.findByPk(id)
+
+    if (!midia) {
+      return response.status(404).json({
+        message: "Mídia não encontrada!",
+      });
+    }
+
+    return response.status(200).json(midia);
+    } catch (error) {
+        return tratarErro(error, response)
+    }
+}
