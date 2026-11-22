@@ -123,3 +123,26 @@ export const atualizarMidia = async (request, response) => {
     return tratarErro(error, response);
   }
 };
+export const deletarMidia = async (request, response) =>{
+        try {
+        const id = Number(request.params.id)
+
+        if (!Number.isInteger(id) || id <= 0) {
+      return response.status(400).json({ message: "ID inválido!" });
+    }
+
+    const midia = await midiaModel.findByPk(id)
+
+    if (!midia) {
+      return response.status(404).json({
+        message: "Mídia não encontrada!",
+      });
+    }
+
+    await midia.destroy();
+
+    return response.status(204).send()
+    } catch (error) {
+        return tratarErro(error, response)
+    }
+}
