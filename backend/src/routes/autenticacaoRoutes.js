@@ -1,4 +1,3 @@
-
 import { Router } from "express";
 import { login } from "../controllers/autenticacaoController.js";
 
