@@ -1,27 +1,20 @@
+
 import {
   projetoTrabalhoModel,
-  usuarioModel,
   areaConhecimentoModel,
 } from "../models/index.js";
 import { tratarErro } from "../utils/errorHandler.js";
 
 export const cadastrarProjeto = async (request, response) => {
-  const { id_usuario, id_area, bimestre, titulo, descricao_atividades } =
-    request.body;
+  const { id_area, bimestre, titulo, descricao_atividades } = request.body;
 
-  if (
-    !id_usuario ||
-    !id_area ||
-    !bimestre ||
-    !titulo ||
-    !descricao_atividades
-  ) {
-    return response
-      .status(400)
-      .json({ message: "Preencha os campos corretamente!" });
+  if (!id_area || !bimestre || !titulo || !descricao_atividades) {
+    return response.status(400).json({
+      message: "Preencha os campos corretamente!",
+    });
   }
 
-  const usuarioId = Number(id_usuario);
+  const usuarioId = request.usuarioId;
   const areaId = Number(id_area);
   const numeroBimestre = Number(bimestre);
 
@@ -29,29 +22,17 @@ export const cadastrarProjeto = async (request, response) => {
     return response.status(400).json({ message: "ID da área inválido!" });
   }
 
-  if (!Number.isInteger(usuarioId) || usuarioId <= 0) {
-    return response.status(400).json({ message: "ID do usuário inválido!" });
-  }
-
   if (
     !Number.isInteger(numeroBimestre) ||
     numeroBimestre < 1 ||
     numeroBimestre > 4
   ) {
-    return response
-      .status(400)
-      .json({ message: "Informe um bimestre válido!" });
+    return response.status(400).json({
+      message: "Informe um bimestre válido!",
+    });
   }
 
   try {
-    const usuarioExiste = await usuarioModel.findByPk(usuarioId);
-
-    if (!usuarioExiste) {
-      return response.status(404).json({
-        message: "Usuário não encontrado!",
-      });
-    }
-
     const areaExiste = await areaConhecimentoModel.findByPk(areaId);
 
     if (!areaExiste) {
@@ -78,15 +59,19 @@ export const cadastrarProjeto = async (request, response) => {
     return tratarErro(error, response);
   }
 };
+
 export const listarProjeto = async (request, response) => {
   try {
-    const projeto = await projetoTrabalhoModel.findAll();
+    const projetos = await projetoTrabalhoModel.findAll({
+      where: { id_usuario: request.usuarioId },
+    });
 
-    response.status(200).json(projeto);
+    return response.status(200).json(projetos);
   } catch (error) {
     return tratarErro(error, response);
   }
 };
+
 export const listarProjetoPorId = async (request, response) => {
   try {
     const id = Number(request.params.id);
@@ -95,17 +80,25 @@ export const listarProjetoPorId = async (request, response) => {
       return response.status(400).json({ message: "ID inválido!" });
     }
 
-    const projeto = await projetoTrabalhoModel.findByPk(id);
+    const projeto = await projetoTrabalhoModel.findOne({
+      where: {
+        id_projeto: id,
+        id_usuario: request.usuarioId,
+      },
+    });
+
     if (!projeto) {
       return response.status(404).json({
         message: "Projeto não encontrado!",
       });
     }
+
     return response.status(200).json(projeto);
   } catch (error) {
     return tratarErro(error, response);
   }
 };
+
 export const atualizarProjeto = async (request, response) => {
   try {
     const id = Number(request.params.id);
@@ -114,7 +107,12 @@ export const atualizarProjeto = async (request, response) => {
       return response.status(400).json({ message: "ID inválido!" });
     }
 
-    const projeto = await projetoTrabalhoModel.findByPk(id);
+    const projeto = await projetoTrabalhoModel.findOne({
+      where: {
+        id_projeto: id,
+        id_usuario: request.usuarioId,
+      },
+    });
 
     if (!projeto) {
       return response.status(404).json({
@@ -125,13 +123,17 @@ export const atualizarProjeto = async (request, response) => {
     const { id_usuario, id_area, bimestre, titulo, descricao_atividades } =
       request.body;
 
-    const usuarioId = id_usuario !== undefined ? Number(id_usuario) : undefined;
+    if (id_usuario !== undefined) {
+      return response.status(400).json({
+        message: "Não é permitido alterar o usuário do projeto!",
+      });
+    }
+
     const areaId = id_area !== undefined ? Number(id_area) : undefined;
     const numeroBimestre =
       bimestre !== undefined ? Number(bimestre) : undefined;
 
     const projetoAtualizado = {
-      id_usuario: usuarioId,
       id_area: areaId,
       bimestre: numeroBimestre,
       titulo: typeof titulo === "string" ? titulo.trim() : titulo,
@@ -147,13 +149,6 @@ export const atualizarProjeto = async (request, response) => {
       }
     });
 
-    if (
-      usuarioId !== undefined &&
-      (!Number.isInteger(usuarioId) || usuarioId <= 0)
-    ) {
-      return response.status(400).json({ message: "ID do usuário inválido!" });
-    }
-
     if (areaId !== undefined && (!Number.isInteger(areaId) || areaId <= 0)) {
       return response.status(400).json({ message: "ID da área inválido!" });
     }
@@ -164,14 +159,8 @@ export const atualizarProjeto = async (request, response) => {
         numeroBimestre < 1 ||
         numeroBimestre > 4)
     ) {
-      return response
-        .status(400)
-        .json({ message: "Informe um bimestre válido!" });
-    }
-
-    if (usuarioId !== undefined && !(await usuarioModel.findByPk(usuarioId))) {
-      return response.status(404).json({
-        message: "Usuário não encontrado!",
+      return response.status(400).json({
+        message: "Informe um bimestre válido!",
       });
     }
 
@@ -191,15 +180,21 @@ export const atualizarProjeto = async (request, response) => {
     return tratarErro(error, response);
   }
 };
-export const deletarProjeto = async(request, response) =>{
-    try {
-        const id = Number(request.params.id)
 
-        if (!Number.isInteger(id) || id <= 0) {
+export const deletarProjeto = async (request, response) => {
+  try {
+    const id = Number(request.params.id);
+
+    if (!Number.isInteger(id) || id <= 0) {
       return response.status(400).json({ message: "ID inválido!" });
     }
 
-    const projeto = await projetoTrabalhoModel.findByPk(id)
+    const projeto = await projetoTrabalhoModel.findOne({
+      where: {
+        id_projeto: id,
+        id_usuario: request.usuarioId,
+      },
+    });
 
     if (!projeto) {
       return response.status(404).json({
@@ -209,8 +204,8 @@ export const deletarProjeto = async(request, response) =>{
 
     await projeto.destroy();
 
-    return response.status(204).send()
-    } catch (error) {
-        return tratarErro(error, response)
-    }
-}
+    return response.status(204).send();
+  } catch (error) {
+    return tratarErro(error, response);
+  }
+};
