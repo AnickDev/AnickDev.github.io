@@ -1,6 +1,7 @@
 import "./src/models/index.js"
 import app from "./src/app.js";
 import { conn } from "./src/config/conn.js";
+import "dotenv/config";
 
 const PORT = 3333
 
