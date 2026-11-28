@@ -14,35 +14,34 @@ export const cadastrarUsuario = async (request, response) => {
     expectativas_pessoais,
     foto_perfil,
   } = request.body;
-  // console.log(request.body)
 
   if (!request.body.nome || !request.body.email) {
-    return response
-      .status(400)
-      .json({ message: "Preencha os campos corretamente!" });
+    return response.status(400).json({
+      message: "Preencha os campos corretamente!",
+    });
   }
 
   if (!senha) {
-    return response.status(422).json({ message: "A senha é obrigatória" });
+    return response.status(422).json({
+      message: "A senha é obrigatória",
+    });
   }
 
   if (senha.length < 8 || senha.length > 100) {
-    return response
-      .status(422)
-      .json({ message: "A senha deve ter entre 8 e 100 caracteres" });
+    return response.status(422).json({
+      message: "A senha deve ter entre 8 e 100 caracteres",
+    });
   }
 
   if (senha !== validarSenha) {
-    return response
-      .status(400)
-      .json({ message: "Usuário ou senha incorretos" });
+    return response.status(400).json({
+      message: "Usuário ou senha incorretos",
+    });
   }
 
   try {
     const salt = bcrypt.genSaltSync(12);
-    // console.log(salt)
     const passwordHash = bcrypt.hashSync(senha, salt);
-    // console.log(passwordHash)
 
     const dados = {
       nome,
@@ -55,17 +54,22 @@ export const cadastrarUsuario = async (request, response) => {
       foto_perfil,
     };
 
-    const usuario = await usuarioModel.create(dados);
-    response.status(201).json({ message: "Cadastro feito com sucesso!" });
+    await usuarioModel.create(dados);
+
+    return response.status(201).json({
+      message: "Cadastro feito com sucesso!",
+    });
   } catch (error) {
     return tratarErro(error, response);
   }
 };
 export const listarUsuario = async (request, response) => {
   try {
-    const usuarios = await usuarioModel.findAll();
+    const usuarios = await usuarioModel.findAll({
+      where: { id: request.usuarioId },
+    });
 
-    response.status(200).json(usuarios);
+    return response.status(200).json(usuarios);
   } catch (error) {
     return tratarErro(error, response);
   }
@@ -78,13 +82,25 @@ export const buscarUsuarioPorId = async (request, response) => {
       return response.status(400).json({ message: "ID inválido!" });
     }
 
-    const usuario = await usuarioModel.findByPk(id);
+    if (id !== request.usuarioId) {
+      return response.status(404).json({
+        message: "Usuário não encontrado!",
+      });
+    }
+
+    const usuario = await usuarioModel.findOne({
+      where: {
+        id,
+        id: request.usuarioId,
+      },
+    });
 
     if (!usuario) {
       return response.status(404).json({
         message: "Usuário não encontrado!",
       });
     }
+
     return response.status(200).json(usuario);
   } catch (error) {
     return tratarErro(error, response);
@@ -98,7 +114,18 @@ export const atualizarUsuario = async (request, response) => {
       return response.status(400).json({ message: "ID inválido!" });
     }
 
-    const usuario = await usuarioModel.findByPk(id);
+    if (id !== request.usuarioId) {
+      return response.status(404).json({
+        message: "Usuário não encontrado!",
+      });
+    }
+
+    const usuario = await usuarioModel.findOne({
+      where: {
+        id,
+        id: request.usuarioId,
+      },
+    });
 
     if (!usuario) {
       return response.status(404).json({
@@ -134,7 +161,7 @@ export const atualizarUsuario = async (request, response) => {
 
     await usuario.update(dadosAtualizados);
 
-    response.status(200).json(usuario);
+    return response.status(200).json(usuario);
   } catch (error) {
     return tratarErro(error, response);
   }
@@ -147,7 +174,18 @@ export const deletarUsuario = async (request, response) => {
       return response.status(400).json({ message: "ID inválido!" });
     }
 
-    const usuario = await usuarioModel.findByPk(id);
+    if (id !== request.usuarioId) {
+      return response.status(404).json({
+        message: "Usuário não encontrado!",
+      });
+    }
+
+    const usuario = await usuarioModel.findOne({
+      where: {
+        id,
+        id: request.usuarioId,
+      },
+    });
 
     if (!usuario) {
       return response.status(404).json({
@@ -157,7 +195,7 @@ export const deletarUsuario = async (request, response) => {
 
     await usuario.destroy();
 
-    response.status(204).send();
+    return response.status(204).send();
   } catch (error) {
     return tratarErro(error, response);
   }
