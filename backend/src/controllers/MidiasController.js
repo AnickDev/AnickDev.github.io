@@ -5,9 +5,9 @@ export const cadastrarMidia = async (request, response) => {
   const { id_projeto, url_arquivo } = request.body;
 
   if (!id_projeto || !url_arquivo) {
-    return response
-      .status(400)
-      .json({ message: "Preencha os campos corretamente!" });
+    return response.status(400).json({
+      message: "Preencha os campos corretamente!",
+    });
   }
 
   const projetoId = Number(id_projeto);
@@ -17,31 +17,47 @@ export const cadastrarMidia = async (request, response) => {
   }
 
   try {
-    const projetoExiste = await projetoTrabalhoModel.findByPk(projetoId);
+    const projetoExiste = await projetoTrabalhoModel.findOne({
+      where: {
+        id_projeto: projetoId,
+        id_usuario: request.usuarioId,
+      },
+    });
 
     if (!projetoExiste) {
       return response.status(404).json({
         message: "Projeto não encontrado!",
       });
     }
+
     const dados = {
       id_projeto: projetoId,
       url_arquivo,
     };
 
     const midia = await midiaModel.create(dados);
-    return response
-      .status(201)
-      .json({ message: "Mídia cadastrada com sucesso!", midia });
+
+    return response.status(201).json({
+      message: "Mídia cadastrada com sucesso!",
+      midia,
+    });
   } catch (error) {
     return tratarErro(error, response);
   }
 };
 export const listarMidias = async (request, response) => {
   try {
-    const midia = await midiaModel.findAll();
+    const projetos = await projetoTrabalhoModel.findAll({
+      where: { id_usuario: request.usuarioId },
+    });
 
-    return response.status(200).json(midia);
+    const midias = await midiaModel.findAll({
+      where: {
+        id_projeto: projetos.map((projeto) => projeto.id_projeto),
+      },
+    });
+
+    return response.status(200).json(midias);
   } catch (error) {
     return tratarErro(error, response);
   }
@@ -57,6 +73,19 @@ export const listarMidiaPorId = async (request, response) => {
     const midia = await midiaModel.findByPk(id);
 
     if (!midia) {
+      return response.status(404).json({
+        message: "Mídia não encontrada!",
+      });
+    }
+
+    const projeto = await projetoTrabalhoModel.findOne({
+      where: {
+        id_projeto: midia.id_projeto,
+        id_usuario: request.usuarioId,
+      },
+    });
+
+    if (!projeto) {
       return response.status(404).json({
         message: "Mídia não encontrada!",
       });
@@ -83,6 +112,19 @@ export const atualizarMidia = async (request, response) => {
       });
     }
 
+    const projetoAtual = await projetoTrabalhoModel.findOne({
+      where: {
+        id_projeto: midia.id_projeto,
+        id_usuario: request.usuarioId,
+      },
+    });
+
+    if (!projetoAtual) {
+      return response.status(404).json({
+        message: "Mídia não encontrada!",
+      });
+    }
+
     const { id_projeto, url_arquivo } = request.body;
 
     const projetoId = id_projeto !== undefined ? Number(id_projeto) : undefined;
@@ -100,12 +142,17 @@ export const atualizarMidia = async (request, response) => {
 
     if (projetoId !== undefined) {
       if (!Number.isInteger(projetoId) || projetoId <= 0) {
-        return response
-          .status(400)
-          .json({ message: "ID do projeto inválido!" });
+        return response.status(400).json({
+          message: "ID do projeto inválido!",
+        });
       }
 
-      const projetoExiste = await projetoTrabalhoModel.findByPk(projetoId);
+      const projetoExiste = await projetoTrabalhoModel.findOne({
+        where: {
+          id_projeto: projetoId,
+          id_usuario: request.usuarioId,
+        },
+      });
 
       if (!projetoExiste) {
         return response.status(404).json({
@@ -116,22 +163,23 @@ export const atualizarMidia = async (request, response) => {
 
     await midia.update(midiaAtualizada);
 
-    return response
-      .status(200)
-      .json({ message: "Mídia atualizada com sucesso!", midia });
+    return response.status(200).json({
+      message: "Mídia atualizada com sucesso!",
+      midia,
+    });
   } catch (error) {
     return tratarErro(error, response);
   }
 };
-export const deletarMidia = async (request, response) =>{
-        try {
-        const id = Number(request.params.id)
+export const deletarMidia = async (request, response) => {
+  try {
+    const id = Number(request.params.id);
 
-        if (!Number.isInteger(id) || id <= 0) {
+    if (!Number.isInteger(id) || id <= 0) {
       return response.status(400).json({ message: "ID inválido!" });
     }
 
-    const midia = await midiaModel.findByPk(id)
+    const midia = await midiaModel.findByPk(id);
 
     if (!midia) {
       return response.status(404).json({
@@ -139,10 +187,23 @@ export const deletarMidia = async (request, response) =>{
       });
     }
 
+    const projeto = await projetoTrabalhoModel.findOne({
+      where: {
+        id_projeto: midia.id_projeto,
+        id_usuario: request.usuarioId,
+      },
+    });
+
+    if (!projeto) {
+      return response.status(404).json({
+        message: "Mídia não encontrada!",
+      });
+    }
+
     await midia.destroy();
 
-    return response.status(204).send()
-    } catch (error) {
-        return tratarErro(error, response)
-    }
-}
+    return response.status(204).send();
+  } catch (error) {
+    return tratarErro(error, response);
+  }
+};
